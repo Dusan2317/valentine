@@ -7,154 +7,158 @@
 
   <style>
     :root{
-      --light:#aeefff;   /* svetlo plavo */
+      --light:#aeefff;
       --light2:#6fd4ff;
     }
 
-    body {
-      margin: 0;
+    body{
+      margin:0;
       font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      min-height: 100vh;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      color: white;
-      overflow: hidden;
-      background: #0b1220; /* fallback ako slika ne učita */
+      min-height:100vh;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      color:#fff;
+      overflow:hidden;
+      background:#0b1220;
     }
 
-    /* Pozadina sa vašom slikom */
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: url("photo.jpg") center / cover no-repeat;
+    /* ✅ Cela slika u pozadini (bez crop) */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background: url("photo.jpg") center / contain no-repeat; /* <-- contain = cela slika */
       filter: blur(10px) brightness(0.55);
+      transform: scale(1.15);
+      z-index:-2;
+    }
+
+    /* Dodatni sloj koji popunjava ekran (da ne bude praznih ivica)
+       Ovo pravi "cover" verziju blago zamućenu ispod contain slike */
+    .bg-fill{
+      position:fixed;
+      inset:0;
+      z-index:-3;
+      background: url("photo.jpg") center / cover no-repeat;
+      filter: blur(22px) brightness(0.35);
       transform: scale(1.12);
-      z-index: -2;
     }
 
-    /* Tamni overlay */
-    body::after {
-      content: "";
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.35);
-      z-index: -1;
+    body::after{
+      content:"";
+      position:fixed;
+      inset:0;
+      background: rgba(0,0,0,0.35);
+      z-index:-1;
     }
 
-    .card {
-      width: min(680px, 92vw);
-      padding: 30px 22px;
-      border-radius: 26px;
-      background: rgba(255, 255, 255, 0.12);
-      border: 1px solid rgba(255, 255, 255, 0.25);
+    .card{
+      width:min(680px, 92vw);
+      padding:28px 22px 24px;
+      border-radius:26px;
+      background: rgba(255,255,255,0.12);
+      border: 1px solid rgba(255,255,255,0.25);
       backdrop-filter: blur(14px);
-      text-align: center;
-      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
+      text-align:center;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.55);
+      position:relative;
     }
 
-    h1 {
-      margin: 0;
+    h1{
+      margin:0;
       font-size: clamp(22px, 3.6vw, 34px);
-      font-weight: 800;
-      text-shadow: 0 2px 18px rgba(0,0,0,.35);
-    }
-
-    h2 {
-      margin-top: 10px;
-      font-size: clamp(16px, 2.6vw, 22px);
-      font-weight: 650;
-      color: #e9fbff;
-      text-shadow: 0 2px 18px rgba(0,0,0,.35);
-    }
-
-    p {
-      margin-top: 18px;
-      color: #eef6ff;
-      font-size: clamp(14px, 2.4vw, 16px);
-      line-height: 1.5;
-      text-shadow: 0 2px 18px rgba(0,0,0,.35);
-    }
-
-    /* Srce */
-    .heart-container {
-      margin: 22px auto 12px;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 14px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    .heart {
-      width: 96px;
-      height: 96px;
-      background: var(--light);
-      position: relative;
-      transform: rotate(-45deg);
-      border-radius: 20px;
-      box-shadow: 0 0 28px rgba(174, 239, 255, 0.85);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-    }
-
-    .heart::before,
-    .heart::after {
-      content: "";
-      width: 96px;
-      height: 96px;
-      background: var(--light);
-      border-radius: 50%;
-      position: absolute;
-    }
-
-    .heart::before { top: -48px; left: 0; }
-    .heart::after  { left: 48px; top: 0; }
-
-    /* Tekst unutar srca rotiramo nazad +45deg */
-    .heart span{
-      transform: rotate(45deg);
-      display: inline-block;
       font-weight: 900;
-      font-size: 18px;
-      letter-spacing: .5px;
-      color: #003344;
-      text-shadow: 0 2px 10px rgba(255,255,255,.35);
+      text-shadow: 0 2px 18px rgba(0,0,0,.35);
+      display:flex;
+      gap:10px;
+      justify-content:center;
+      align-items:center;
+      flex-wrap:wrap;
     }
 
-    /* Stabilno "🩵" — SVG srce, uvek ista boja */
-    .mini-heart svg{
-      width: 34px;
-      height: 34px;
+    h2{
+      margin:10px 0 0;
+      font-size: clamp(16px, 2.6vw, 22px);
+      font-weight: 700;
+      color:#e9fbff;
+      text-shadow: 0 2px 18px rgba(0,0,0,.35);
+    }
+
+    /* ✅ Lep centralni “🩵” kao SVG (uvek isto izgleda) */
+    .center{
+      margin: 18px auto 8px;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      gap:14px;
+      user-select:none;
+    }
+
+    .big-heart{
+      width:120px;
+      height:120px;
+      filter: drop-shadow(0 0 18px rgba(174,239,255,.85));
+      cursor:pointer;
+      transition: transform .12s ease;
+    }
+    .big-heart:hover{ transform: translateY(-2px) scale(1.01); }
+
+    .ds-text{
+      font-weight: 900;
+      font-size: 20px;
+      fill:#003344;
+      letter-spacing:.5px;
+    }
+
+    .small-heart{
+      width:34px;
+      height:34px;
       filter: drop-shadow(0 0 10px rgba(174,239,255,.9));
     }
 
-    button {
+    .row{
+      display:flex;
+      gap:12px;
+      justify-content:center;
+      flex-wrap:wrap;
+      margin-top: 18px;
+      position: relative;
+      min-height: 56px; /* da "Ne" može da beži bez pomeranja layouta */
+    }
+
+    button{
       border: none;
       padding: 14px 22px;
       border-radius: 16px;
       font-size: 17px;
-      font-weight: 800;
+      font-weight: 900;
       cursor: pointer;
-      margin-top: 18px;
       background: linear-gradient(135deg, var(--light), var(--light2));
       color: #002233;
-      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.35);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.35);
       transition: transform 0.12s ease;
+      min-width: 160px;
     }
 
-    button:hover { transform: translateY(-2px); }
+    button:hover{ transform: translateY(-2px); }
 
-    .secret {
-      display: none;
-      margin-top: 18px;
+    .no-btn{
+      background: rgba(255,255,255,0.10);
+      color: #ffffff;
+      border: 1px solid rgba(255,255,255,0.25);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 12px 25px rgba(0,0,0,0.25);
+      position: relative; /* start normal */
+    }
+
+    .secret, .final{
+      display:none;
+      margin-top: 16px;
       padding: 14px;
       border-radius: 18px;
-      background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(255, 255, 255, 0.2);
+      background: rgba(0,0,0,0.35);
+      border: 1px solid rgba(255,255,255,0.2);
       font-size: 15px;
       color: #e6f7ff;
     }
@@ -162,60 +166,94 @@
 </head>
 
 <body>
-  <div class="card">
+  <div class="bg-fill"></div>
 
-    <h1>Pozivnica za moju najlepšu Sašicu <span class="mini-heart" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none">
+  <div class="card">
+    <h1>
+      Pozivnica za moju najlepšu Sašicu
+      <svg class="small-heart" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 21s-7.2-4.6-9.7-8.7C.5 9 .9 5.8 3.4 4.1 5.5 2.7 8.2 3.1 10 5c1.8-1.9 4.5-2.3 6.6-.9 2.5 1.7 2.9 4.9 1.1 8.2C19.2 16.4 12 21 12 21z"
               fill="#aeefff"/>
       </svg>
-    </span></h1>
+    </h1>
 
     <h2>Hoćeš li biti moja Valentine?</h2>
 
-    <!-- Srce D + S -->
-    <div class="heart-container" onclick="toggleSecret()">
-      <div class="heart"><span>D + S</span></div>
-      <div class="mini-heart" aria-hidden="true">
-        <svg viewBox="0 0 24 24" fill="none">
-          <path d="M12 21s-7.2-4.6-9.7-8.7C.5 9 .9 5.8 3.4 4.1 5.5 2.7 8.2 3.1 10 5c1.8-1.9 4.5-2.3 6.6-.9 2.5 1.7 2.9 4.9 1.1 8.2C19.2 16.4 12 21 12 21z"
-                fill="#aeefff"/>
-        </svg>
-      </div>
-    </div>
+    <div class="center">
+      <!-- Klik na srce pokazuje secret poruku -->
+      <svg class="big-heart" viewBox="0 0 24 24" onclick="toggleSecret()" role="button" aria-label="Secret poruka">
+        <path d="M12 21s-7.2-4.6-9.7-8.7C.5 9 .9 5.8 3.4 4.1 5.5 2.7 8.2 3.1 10 5c1.8-1.9 4.5-2.3 6.6-.9 2.5 1.7 2.9 4.9 1.1 8.2C19.2 16.4 12 21 12 21z"
+              fill="#aeefff"/>
+        <text x="12" y="13.2" text-anchor="middle" class="ds-text">D + S</text>
+      </svg>
 
-    <p>
-      Imam mali plan: malo šetnje, neko slatko, i onda…
-      samo ti i ja, bez žurbe, samo lepo.
-    </p>
-
-    <button onclick="acceptValentine()">DA <span class="mini-heart" aria-hidden="true">
-      <svg viewBox="0 0 24 24" fill="none" style="width:18px;height:18px;vertical-align:-3px;filter:drop-shadow(0 0 6px rgba(174,239,255,.9));">
+      <svg class="small-heart" viewBox="0 0 24 24" aria-hidden="true">
         <path d="M12 21s-7.2-4.6-9.7-8.7C.5 9 .9 5.8 3.4 4.1 5.5 2.7 8.2 3.1 10 5c1.8-1.9 4.5-2.3 6.6-.9 2.5 1.7 2.9 4.9 1.1 8.2C19.2 16.4 12 21 12 21z"
               fill="#aeefff"/>
       </svg>
-    </span></button>
+    </div>
 
-    <!-- Secret poruka -->
+    <!-- ✅ Sklonjena “Imam mali plan…” poruka (nema je više) -->
+
+    <div class="row" id="row">
+      <button onclick="acceptValentine()">DA 🩵</button>
+      <button class="no-btn" id="noBtn" type="button">Ne 😅</button>
+    </div>
+
     <div class="secret" id="secretBox">
       Sašice… ti si moj najlepši deo života. 🩵
     </div>
 
-    <!-- Finalna poruka -->
-    <div class="secret" id="finalBox"></div>
+    <div class="final" id="finalBox"></div>
   </div>
 
   <script>
-    function toggleSecret() {
+    // ✅ “Ne” dugme beži (unutar .row)
+    const noBtn = document.getElementById("noBtn");
+    const row   = document.getElementById("row");
+    let dodges = 0;
+
+    function dodge(){
+      dodges++;
+
+      const rowRect = row.getBoundingClientRect();
+      const btnRect = noBtn.getBoundingClientRect();
+
+      const padding = 6;
+      const maxX = Math.max(padding, rowRect.width - btnRect.width - padding);
+      const maxY = Math.max(padding, rowRect.height - btnRect.height - padding);
+
+      const x = Math.floor(Math.random() * maxX);
+      const y = Math.floor(Math.random() * maxY);
+
+      noBtn.style.position = "absolute";
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
+
+      // posle par bežanja, pretvori ga u “OK DA”
+      if (dodges >= 6) {
+        noBtn.textContent = "Ok, DA 😄";
+        noBtn.classList.remove("no-btn");
+        noBtn.style.background = "linear-gradient(135deg, #aeefff, #6fd4ff)";
+        noBtn.style.color = "#002233";
+        noBtn.style.border = "none";
+        noBtn.onclick = acceptValentine;
+        noBtn.onmouseenter = null;
+      }
+    }
+
+    noBtn.addEventListener("mouseenter", dodge);
+    noBtn.addEventListener("click", dodge);
+
+    function toggleSecret(){
       const box = document.getElementById("secretBox");
       box.style.display = (box.style.display === "block") ? "none" : "block";
     }
 
-    function acceptValentine() {
+    function acceptValentine(){
       const final = document.getElementById("finalBox");
       final.style.display = "block";
-      final.innerHTML =
-        "Jeeee! Zvanično: ti si moja Valentine 🩵<br>Vidimo se uskoro… Dušan 💌";
+      final.innerHTML = "Jeeee! Zvanično: ti si moja Valentine 🩵<br>Vidimo se uskoro… Dušan 💌";
     }
   </script>
 </body>
