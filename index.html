@@ -3,228 +3,194 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Pozivnica 💌</title>
+  <title>Pozivnica 🩵</title>
+
   <style>
-    :root{
-      --bg1:#0f1226; --bg2:#1c1f3a; --card:#ffffff10; --text:#f6f7ff; --muted:#c9cbe6;
-      --yes:#3ddc97; --no:#ff6b8b; --accent:#7aa2ff;
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      overflow: hidden;
     }
-    *{box-sizing:border-box}
-    body{
-      margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-      color:var(--text);
-      min-height:100vh;
-      display:grid;
-      place-items:center;
-      background: radial-gradient(1200px 800px at 20% 10%, #23306b 0%, transparent 55%),
-                  radial-gradient(900px 700px at 90% 20%, #5b1b5a 0%, transparent 60%),
-                  linear-gradient(160deg, var(--bg1), var(--bg2));
-      overflow:hidden;
+
+    /* Pozadina sa vašom slikom */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: url("photo.jpg") center / cover no-repeat;
+      filter: blur(8px) brightness(0.55);
+      transform: scale(1.1);
+      z-index: -2;
     }
-    .hearts{
-      position:fixed; inset:0; pointer-events:none; opacity:.25;
-      background:
-        radial-gradient(circle at 10% 20%, #ff6b8b 0 2px, transparent 3px),
-        radial-gradient(circle at 30% 80%, #7aa2ff 0 2px, transparent 3px),
-        radial-gradient(circle at 70% 25%, #ff6b8b 0 2px, transparent 3px),
-        radial-gradient(circle at 85% 75%, #7aa2ff 0 2px, transparent 3px);
-      filter: blur(.2px);
-      animation: float 8s ease-in-out infinite;
+
+    /* Tamni overlay */
+    body::after {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: -1;
     }
-    @keyframes float{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-12px)} }
-    .card{
-      width:min(620px, 92vw);
-      background:var(--card);
-      border:1px solid #ffffff22;
-      border-radius:24px;
-      padding:28px 22px;
-      backdrop-filter: blur(12px);
-      box-shadow: 0 20px 60px #00000055;
-      text-align:center;
-      position:relative;
+
+    .card {
+      width: min(620px, 92vw);
+      padding: 30px 22px;
+      border-radius: 26px;
+      background: rgba(255, 255, 255, 0.12);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(14px);
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.55);
     }
-    h1{margin:6px 0 10px; font-size: clamp(26px, 4vw, 38px); letter-spacing:.2px}
-    p{margin:0 0 18px; color:var(--muted); font-size: clamp(14px, 2.4vw, 16px); line-height:1.45}
-    .name{
-      display:inline-block;
-      padding:.15rem .55rem;
-      border-radius:999px;
-      border:1px solid #ffffff2a;
-      background:#ffffff10;
-      color:#fff;
+
+    h1 {
+      margin: 0;
+      font-size: 30px;
+      font-weight: 800;
     }
-    .row{
-      display:flex; gap:12px; justify-content:center; flex-wrap:wrap; margin-top:18px;
+
+    h2 {
+      margin-top: 8px;
+      font-size: 22px;
+      font-weight: 600;
+      color: #d7f4ff;
     }
-    button{
-      border:0;
-      padding:14px 18px;
-      border-radius:16px;
-      font-weight:700;
-      font-size:16px;
-      cursor:pointer;
-      transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease;
-      box-shadow: 0 12px 25px #00000035;
-      min-width: 160px;
+
+    p {
+      margin-top: 16px;
+      color: #eef6ff;
+      font-size: 16px;
+      line-height: 1.5;
     }
-    button:hover{ transform: translateY(-1px); }
-    .yes{ background: linear-gradient(135deg, #2be7a8, var(--yes)); color:#062016;}
-    .no{ background: linear-gradient(135deg, #ff7aa0, var(--no)); color:#2a0010;}
-    .mini{
-      margin-top:16px;
-      font-size:13px;
-      color:#d8daf2;
-      opacity:.9;
+
+    /* Srce */
+    .heart-container {
+      margin: 22px auto;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+      cursor: pointer;
+      user-select: none;
     }
-    .badge{
-      display:inline-flex; gap:8px; align-items:center;
-      padding:10px 12px;
-      border-radius:14px;
-      border:1px solid #ffffff22;
-      background:#0b0e1f55;
-      margin: 14px auto 0;
-      max-width: 520px;
-      justify-content:center;
+
+    .heart {
+      width: 90px;
+      height: 90px;
+      background: #aeefff; /* 🩵 svetlo plavo */
+      position: relative;
+      transform: rotate(-45deg);
+      border-radius: 20px;
+      box-shadow: 0 0 28px rgba(174, 239, 255, 0.8);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: 800;
+      font-size: 18px;
+      color: #003344;
     }
-    .sparkle{ color: var(--accent); }
-    .result{
-      margin-top:18px;
-      padding:14px 14px;
-      border-radius:18px;
-      border:1px solid #ffffff2a;
-      background:#0b0e1f55;
-      display:none;
+
+    .heart::before,
+    .heart::after {
+      content: "";
+      width: 90px;
+      height: 90px;
+      background: #aeefff;
+      border-radius: 50%;
+      position: absolute;
     }
-    .result strong{ color:#fff; }
-    .confetti{
-      position:fixed; inset:0; pointer-events:none; display:none;
+
+    .heart::before {
+      top: -45px;
+      left: 0;
+    }
+
+    .heart::after {
+      left: 45px;
+      top: 0;
+    }
+
+    .mini-heart {
+      font-size: 30px;
+      color: #aeefff;
+      text-shadow: 0 0 12px rgba(174, 239, 255, 0.9);
+    }
+
+    button {
+      border: none;
+      padding: 14px 22px;
+      border-radius: 16px;
+      font-size: 17px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 18px;
+      background: linear-gradient(135deg, #aeefff, #6fd4ff);
+      color: #002233;
+      box-shadow: 0 12px 25px rgba(0, 0, 0, 0.35);
+      transition: transform 0.12s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+    }
+
+    .secret {
+      display: none;
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(0, 0, 0, 0.35);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      font-size: 15px;
+      color: #e6f7ff;
     }
   </style>
 </head>
+
 <body>
-  <div class="hearts"></div>
+  <div class="card">
 
-  <canvas class="confetti" id="confetti"></canvas>
+    <h1>Pozivnica za moju najlepšu Sašicu 🩵</h1>
+    <h2>Hoćeš li biti moja Valentine?</h2>
 
-  <main class="card">
-    <div class="badge">
-      <span class="sparkle">✨</span>
-      <span>Pozivnica samo za <span class="name" id="herName">Sašu</span></span>
-      <span class="sparkle">✨</span>
+    <!-- Srce D + S -->
+    <div class="heart-container" onclick="toggleSecret()">
+      <div class="heart">D + S</div>
+      <div class="mini-heart">🩵</div>
     </div>
 
-    <h1>Hoćeš li biti moja Valentine? 💘</h1>
     <p>
-      Imam mali plan: malo šetnje, neko slatko, i onda
-      <span class="name">ti</span> i <span class="name">ja</span> — bez žurbe, samo lepo.
+      Imam mali plan: malo šetnje, neko slatko, i onda…
+      samo ti i ja, bez žurbe, samo lepo.
     </p>
 
-    <div class="row" id="btnRow">
-      <button class="yes" id="yesBtn">DA 💚</button>
-      <button class="no" id="noBtn">Ne 😅</button>
+    <button onclick="acceptValentine()">DA 🩵</button>
+
+    <!-- Secret poruka -->
+    <div class="secret" id="secretBox">
+      Sašice… ti si moj najlepši deo života. 🩵
     </div>
 
-    <div class="result" id="resultBox"></div>
-
-    <div class="mini">
-      (Ako klikne “Ne”, dugme će pokušati da pobegne. 😉)
-    </div>
-  </main>
+    <!-- Finalna poruka -->
+    <div class="secret" id="finalBox"></div>
+  </div>
 
   <script>
-    // Podešavanja (slobodno promeni)
-    const HER_NAME = "Saša";
-    const YOUR_NAME = "Dušan";
-    document.getElementById("herName").textContent = HER_NAME;
-
-    const yesBtn = document.getElementById("yesBtn");
-    const noBtn  = document.getElementById("noBtn");
-    const row    = document.getElementById("btnRow");
-    const result = document.getElementById("resultBox");
-
-    // "Ne" beži
-    let dodges = 0;
-    noBtn.addEventListener("mouseenter", () => {
-      dodges++;
-      const card = document.querySelector(".card");
-      const rect = card.getBoundingClientRect();
-
-      const maxX = rect.width - noBtn.offsetWidth - 30;
-      const maxY = rect.height - noBtn.offsetHeight - 30;
-
-      const x = Math.max(10, Math.floor(Math.random() * maxX));
-      const y = Math.max(10, Math.floor(Math.random() * maxY));
-
-      noBtn.style.position = "absolute";
-      noBtn.style.left = x + "px";
-      noBtn.style.top = y + "px";
-      noBtn.style.opacity = Math.max(0.35, 1 - dodges * 0.12);
-
-      if (dodges >= 6) {
-        noBtn.textContent = "Ok, DA 😄";
-        noBtn.classList.remove("no");
-        noBtn.classList.add("yes");
-      }
-    });
-
-    // "DA" click
-    function showYes() {
-      row.style.display = "none";
-      result.style.display = "block";
-      result.innerHTML = `
-        <h2 style="margin:0 0 8px;">Jeeee! 💞</h2>
-        <p style="margin:0;color:#cfd2f2;">
-          <strong>${HER_NAME}</strong>, zvanično: ti si moja Valentine. <br/>
-          Vidimo se uskoro — ${YOUR_NAME} 💌
-        </p>
-        <p style="margin:10px 0 0;color:#cfd2f2;font-size:13px;opacity:.9;">
-          (Pošalji mi “DA” kad vidiš ovo 😍)
-        </p>
-      `;
-      launchConfetti();
+    function toggleSecret() {
+      const box = document.getElementById("secretBox");
+      box.style.display = (box.style.display === "block") ? "none" : "block";
     }
 
-    yesBtn.addEventListener("click", showYes);
-    noBtn.addEventListener("click", showYes);
-
-    // Konfete (lagano)
-    const canvas = document.getElementById("confetti");
-    const ctx = canvas.getContext("2d");
-    let pieces = [];
-    function resize(){
-      canvas.width = innerWidth; canvas.height = innerHeight;
-    }
-    addEventListener("resize", resize); resize();
-
-    function launchConfetti(){
-      canvas.style.display = "block";
-      pieces = Array.from({length: 180}, () => ({
-        x: Math.random()*canvas.width,
-        y: -20 - Math.random()*canvas.height*0.2,
-        r: 3 + Math.random()*5,
-        vy: 2 + Math.random()*4,
-        vx: -2 + Math.random()*4,
-        a: Math.random()*Math.PI*2,
-        va: -0.2 + Math.random()*0.4
-      }));
-      requestAnimationFrame(tick);
-      setTimeout(()=>{ canvas.style.display="none"; }, 2600);
-    }
-    function tick(){
-      ctx.clearRect(0,0,canvas.width,canvas.height);
-      for(const p of pieces){
-        p.x += p.vx; p.y += p.vy; p.a += p.va;
-        ctx.save();
-        ctx.translate(p.x,p.y);
-        ctx.rotate(p.a);
-        ctx.beginPath();
-        ctx.roundRect(-p.r, -p.r, p.r*2, p.r*2, 2);
-        ctx.fillStyle = `hsla(${Math.floor(200+Math.random()*140)}, 90%, 70%, .9)`;
-        ctx.fill();
-        ctx.restore();
-      }
-      pieces = pieces.filter(p => p.y < canvas.height + 40);
-      if(pieces.length) requestAnimationFrame(tick);
+    function acceptValentine() {
+      const final = document.getElementById("finalBox");
+      final.style.display = "block";
+      final.innerHTML =
+        "Jeeee! Zvanično: ti si moja Valentine 🩵<br>Vidimo se uskoro… Tvoj Dušan 💌";
     }
   </script>
 </body>
