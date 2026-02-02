@@ -1,314 +1,245 @@
 <!doctype html>
 <html lang="sr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Pozivnica 🩵</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pozivnica 🩵</title>
 
-  <style>
-    :root{
-      --light:#aeefff;
-      --light2:#6fd4ff;
-    }
+<style>
+:root{
+  --light:#aeefff;
+  --light2:#6fd4ff;
+}
 
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
-      min-height:100vh;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      color:#fff;
-      overflow:hidden;
-      background:#0b1220;
-    }
+body{
+  margin:0;
+  font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+  min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  color:#fff;
+  overflow:hidden;
+  background:#000;
+}
 
-    /* Dreamy fill sloj ispod */
-    .bg-fill{
-      position:fixed;
-      inset:0;
-      z-index:-3;
-      background: url("photo.jpg") center / cover no-repeat;
-      filter: blur(12px) brightness(0.45);
-      transform: scale(1.12);
-    }
+/* Jasna pozadina */
+.bg{
+  position:fixed;
+  inset:0;
+  z-index:-3;
+  background:url("photo.jpg") center/cover no-repeat;
+}
 
-    /* Cela slika vidljiva (contain) */
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      background: url("photo.jpg") center / contain no-repeat;
-      filter: blur(3px) brightness(0.78);
-      transform: scale(1.08);
-      z-index:-2;
-    }
+/* Tamni overlay */
+body::after{
+  content:"";
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,0.35);
+  z-index:-1;
+}
 
-    body::after{
-      content:"";
-      position:fixed;
-      inset:0;
-      background: rgba(0,0,0,0.30);
-      z-index:-1;
-    }
+/* Glass kartica */
+.card{
+  width:min(680px,92vw);
+  padding:28px 22px 26px;
+  border-radius:26px;
+  background:rgba(255,255,255,0.14);
+  border:1px solid rgba(255,255,255,0.28);
+  backdrop-filter:blur(10px);
+  text-align:center;
+  box-shadow:0 20px 60px rgba(0,0,0,.55);
+}
 
-    .card{
-      width:min(680px, 92vw);
-      padding:28px 22px 24px;
-      border-radius:26px;
-      background: rgba(255,255,255,0.12);
-      border: 1px solid rgba(255,255,255,0.25);
-      backdrop-filter: blur(14px);
-      text-align:center;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.55);
-      position:relative;
-    }
+h1{
+  margin:0;
+  font-size:clamp(22px,3.6vw,34px);
+  font-weight:900;
+}
 
-    h1{
-      margin:0;
-      font-size: clamp(22px, 3.6vw, 34px);
-      font-weight: 900;
-      text-shadow: 0 2px 18px rgba(0,0,0,.35);
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      gap:10px;
-      flex-wrap:wrap;
-    }
+h2{
+  margin:10px 0 0;
+  font-size:clamp(16px,2.6vw,22px);
+  font-weight:700;
+  color:#e9fbff;
+}
 
-    h2{
-      margin:10px 0 0;
-      font-size: clamp(16px, 2.6vw, 22px);
-      font-weight: 700;
-      color:#e9fbff;
-      text-shadow: 0 2px 18px rgba(0,0,0,.35);
-    }
+/* Veliko srce */
+.center{
+  margin:24px auto 16px;
+  display:flex;
+  justify-content:center;
+}
 
-    /* Veliko srce */
-    .center{
-      margin: 22px auto 10px;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      user-select:none;
-    }
+.big-heart{
+  width:140px;
+  height:140px;
+  filter:drop-shadow(0 0 22px rgba(174,239,255,.9));
+  cursor:pointer;
+  transition:transform .2s ease;
+}
+.big-heart:hover{
+  transform:scale(1.08);
+}
 
-    .big-heart{
-      width:130px;
-      height:130px;
-      cursor:pointer;
-      filter: drop-shadow(0 0 22px rgba(174,239,255,.85));
-      transition: transform 0.20s ease;
-    }
+/* Dugmad */
+.row{
+  margin-top:22px;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:14px;
+  align-items:center;
+}
 
-    .big-heart:hover{
-      transform: scale(1.08);
-    }
+.yes-wrap{
+  display:flex;
+  justify-content:center;
+}
 
-    /* Dugmad: koristimo grid sa 2 kolone:
-       levo je DA (stabilno), desno je "zona" gde Ne sme da beži.
-       Tako Ne nikad ne ide preko DA. */
-    .row{
-      margin-top: 20px;
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap:12px;
-      align-items:center;
-    }
+.no-zone{
+  position:relative;
+  height:90px;
+  overflow:hidden;
+}
 
-    .yes-wrap{
-      display:flex;
-      justify-content:center;
-      align-items:center;
-    }
+button{
+  border:none;
+  padding:14px 24px;
+  border-radius:16px;
+  font-size:17px;
+  font-weight:900;
+  min-width:160px;
+  box-shadow:0 12px 25px rgba(0,0,0,.35);
+  cursor:pointer;
+}
 
-    .no-zone{
-      position:relative;
-      height:56px; /* visina zone */
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      overflow:hidden; /* Ne ne može van desne zone */
-      border-radius:16px;
-    }
+.yes-btn{
+  background:linear-gradient(135deg,var(--light),var(--light2));
+  color:#002233;
+}
 
-    button{
-      border: none;
-      padding: 14px 22px;
-      border-radius: 16px;
-      font-size: 17px;
-      font-weight: 900;
-      cursor: pointer;
-      min-width: 160px;
-      box-shadow: 0 12px 25px rgba(0,0,0,0.35);
-      transition: transform 0.12s ease;
-      user-select:none;
-      -webkit-tap-highlight-color: transparent;
-      touch-action: manipulation;
-    }
+.no-btn{
+  position:absolute;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  background:rgba(255,255,255,.12);
+  color:#fff;
+  border:1px solid rgba(255,255,255,.25);
+  backdrop-filter:blur(6px);
 
-    button:hover{ transform: translateY(-2px); }
+  pointer-events:none; /* ne može da se klikne */
+}
 
-    .yes-btn{
-      background: linear-gradient(135deg, var(--light), var(--light2));
-      color: #002233;
-    }
+/* Poruke */
+.secret,.final{
+  display:none;
+  margin-top:16px;
+  padding:14px;
+  border-radius:18px;
+  background:rgba(0,0,0,.35);
+  border:1px solid rgba(255,255,255,.2);
+  font-size:15px;
+  color:#e6f7ff;
+}
 
-    .no-btn{
-      background: rgba(255,255,255,0.10);
-      color: #ffffff;
-      border: 1px solid rgba(255,255,255,0.25);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 12px 25px rgba(0,0,0,0.25);
-      position:absolute; /* beži samo u okviru desne zone */
-      left: 50%;
-      top: 50%;
-      transform: translate(-50%, -50%);
-      will-change: left, top;
-    }
+/* Slika koja se pojavi kad klikne DA */
+#lovePhoto{
+  display:none;
+  margin-top:18px;
+  width:min(420px,90%);
+  border-radius:18px;
+  border:2px solid rgba(255,255,255,0.25);
+  box-shadow:0 15px 40px rgba(0,0,0,0.45);
+}
 
-    /* Secret i final poruke */
-    .secret, .final{
-      display:none;
-      margin-top: 16px;
-      padding: 14px;
-      border-radius: 18px;
-      background: rgba(0,0,0,0.35);
-      border: 1px solid rgba(255,255,255,0.2);
-      font-size: 15px;
-      color: #e6f7ff;
-    }
-
-    /* Malo bolje za mobilni: ako je ekran uzak, stavi jedno ispod drugog
-       i dalje: Ne ostaje ispod (ne preklapa DA) */
-    @media (max-width: 520px){
-      .row{ grid-template-columns: 1fr; }
-      .no-zone{ margin: 0 auto; width: 100%; max-width: 320px; }
-      .yes-wrap{ width:100%; }
-    }
-  </style>
+@media(max-width:520px){
+  .row{grid-template-columns:1fr;}
+  .no-zone{height:100px;}
+}
+</style>
 </head>
 
 <body>
-  <div class="bg-fill"></div>
+<div class="bg"></div>
 
-  <div class="card">
-    <h1>Pozivnica za moju najlepšu Sašicu 🩵</h1>
-    <h2>Hoćeš li biti moja Valentine?</h2>
+<div class="card">
+  <h1>Pozivnica za moju najlepšu Sašicu 🩵</h1>
+  <h2>Hoćeš li biti moja Valentine?</h2>
 
-    <div class="center">
-      <svg class="big-heart" viewBox="0 0 24 24" onclick="toggleSecret()" aria-label="Secret poruka">
-        <path
-          d="M12 21s-7.2-4.6-9.7-8.7C.5 9 .9 5.8 3.4 4.1 5.5 2.7 8.2 3.1 10 5c1.8-1.9 4.5-2.3 6.6-.9 2.5 1.7 2.9 4.9 1.1 8.2C19.2 16.4 12 21 12 21z"
-          fill="#aeefff"
-        />
-      </svg>
-    </div>
-
-    <div class="row">
-      <div class="yes-wrap">
-        <button class="yes-btn" onclick="acceptValentine()">DA 🩵</button>
-      </div>
-
-      <!-- Desna zona za Ne: ne može preko DA -->
-      <div class="no-zone" id="noZone" aria-label="Zona za Ne dugme">
-        <button class="no-btn" id="noBtn" type="button">Ne 😅</button>
-      </div>
-    </div>
-
-    <div class="secret" id="secretBox">
-      Sašice… ti si moj najlepši deo života. 🩵
-    </div>
-
-    <div class="final" id="finalBox"></div>
+  <!-- Srce -->
+  <div class="center">
+    <svg class="big-heart" viewBox="0 0 24 24" onclick="toggleSecret()">
+      <path fill="#aeefff"
+        d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5
+           2 5.42 4.42 3 7.5 3
+           9.24 3 10.91 3.81 12 5.08
+           13.09 3.81 14.76 3 16.5 3
+           19.58 3 22 5.42 22 8.5
+           22 12.28 18.6 15.36 13.45 20.04z"/>
+    </svg>
   </div>
 
-  <script>
-    const noBtn  = document.getElementById("noBtn");
-    const noZone = document.getElementById("noZone");
+  <!-- Dugmad -->
+  <div class="row">
+    <div class="yes-wrap">
+      <button class="yes-btn" onclick="acceptValentine()">DA 🩵</button>
+    </div>
 
-    // Brže bežanje + "cooldown" da ne možeš spam klik
-    let lastMove = 0;
-    const MOVE_COOLDOWN_MS = 120; // manji = brže beži
-    const EDGE_PADDING = 6;
+    <div class="no-zone" id="noZone">
+      <button class="no-btn" id="noBtn">Ne 😅</button>
+    </div>
+  </div>
 
-    // pomeri Ne na random poziciju unutar zone, ali dovoljno daleko od kursora
-    function moveNo(avoidX, avoidY){
-      const now = Date.now();
-      if (now - lastMove < MOVE_COOLDOWN_MS) return;
-      lastMove = now;
+  <!-- Secret poruka -->
+  <div class="secret" id="secretBox">
+    Sašice… ti si moj najlepši deo života. 🩵
+  </div>
 
-      const zone = noZone.getBoundingClientRect();
-      const btn  = noBtn.getBoundingClientRect();
+  <!-- Final poruka -->
+  <div class="final" id="finalBox"></div>
 
-      const maxX = Math.max(EDGE_PADDING, zone.width  - btn.width  - EDGE_PADDING);
-      const maxY = Math.max(EDGE_PADDING, zone.height - btn.height - EDGE_PADDING);
+  <!-- Slika koja se pojavi kad klikne DA -->
+  <img id="lovePhoto" src="ds.jpg" alt="D + S">
+</div>
 
-      // U zoninim koordinatama
-      const ax = (avoidX != null) ? (avoidX - zone.left) : zone.width/2;
-      const ay = (avoidY != null) ? (avoidY - zone.top)  : zone.height/2;
+<script>
+const noBtn = document.getElementById("noBtn");
+const noZone = document.getElementById("noZone");
 
-      // Pokušaj par puta da nađe poziciju koja nije blizu pokazivača
-      let x = 0, y = 0;
-      let ok = false;
-      for (let i=0; i<10; i++){
-        x = Math.floor(Math.random() * maxX);
-        y = Math.floor(Math.random() * maxY);
+/* Teleport bežanje */
+function teleport(){
+  const zone = noZone.getBoundingClientRect();
+  const btn = noBtn.getBoundingClientRect();
 
-        const cx = x + btn.width/2;
-        const cy = y + btn.height/2;
-        const dist = Math.hypot(cx - ax, cy - ay);
+  const x = Math.random() * (zone.width - btn.width);
+  const y = Math.random() * (zone.height - btn.height);
 
-        // minimalna udaljenost od pokazivača (što veće = teže kliknuti)
-        if (dist > 90) { ok = true; break; }
-      }
-      // ako nije našao "daleko", uzmi šta ima
-      noBtn.style.left = x + "px";
-      noBtn.style.top  = y + "px";
-      noBtn.style.transform = "translate(0,0)";
-    }
+  noBtn.style.left = x + "px";
+  noBtn.style.top  = y + "px";
+  noBtn.style.transform = "none";
+}
 
-    // Beži čim uđeš u zonu i dok se mičeš
-    noZone.addEventListener("pointerenter", (e) => moveNo(e.clientX, e.clientY));
-    noZone.addEventListener("pointermove",  (e) => moveNo(e.clientX, e.clientY));
+noZone.addEventListener("mouseenter", teleport);
+noZone.addEventListener("mousemove", teleport);
 
-    // Ako pokušaš klik — beži momentalno (i spreči klik)
-    noBtn.addEventListener("pointerdown", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      moveNo(e.clientX, e.clientY);
-    });
+function toggleSecret(){
+  const box = document.getElementById("secretBox");
+  box.style.display = box.style.display === "block" ? "none" : "block";
+}
 
-    // Za svaki slučaj: i na click beži
-    noBtn.addEventListener("click", (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      moveNo(e.clientX, e.clientY);
-    });
+function acceptValentine(){
+  const final = document.getElementById("finalBox");
+  const photo = document.getElementById("lovePhoto");
 
-    // Start: centriraj Ne na sredinu zone
-    window.addEventListener("load", () => {
-      // postavi na sredinu (posle prvog layouta)
-      const zone = noZone.getBoundingClientRect();
-      const btn  = noBtn.getBoundingClientRect();
-      const x = Math.max(EDGE_PADDING, (zone.width - btn.width) / 2);
-      const y = Math.max(EDGE_PADDING, (zone.height - btn.height) / 2);
-      noBtn.style.left = x + "px";
-      noBtn.style.top  = y + "px";
-      noBtn.style.transform = "translate(0,0)";
-    });
+  final.style.display = "block";
+  final.innerHTML =
+    "Moja Sašica 🩵<br>Jedva čekam naš dan.";
 
-    function toggleSecret(){
-      const box = document.getElementById("secretBox");
-      box.style.display = (box.style.display === "block") ? "none" : "block";
-    }
+  photo.style.display = "block";
+}
+</script>
 
-    function acceptValentine(){
-      const final = document.getElementById("finalBox");
-      final.style.display = "block";
-      final.innerHTML =
-        "Jeeee! Zvanično: ti si moja Valentine 🩵<br>Vidimo se uskoro… Dušan 💌";
-    }
-  </script>
 </body>
 </html>
