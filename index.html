@@ -23,33 +23,32 @@
       background:#0b1220;
     }
 
-    /* ✅ Cela slika u pozadini (bez crop) */
-    body::before{
-      content:"";
-      position:fixed;
-      inset:0;
-      background: url("photo.jpg") center / contain no-repeat; /* <-- contain = cela slika */
-      filter: blur(10px) brightness(0.55);
-      transform: scale(1.15);
-      z-index:-2;
-    }
-
-    /* Dodatni sloj koji popunjava ekran (da ne bude praznih ivica)
-       Ovo pravi "cover" verziju blago zamućenu ispod contain slike */
+    /* Dreamy fill sloj ispod */
     .bg-fill{
       position:fixed;
       inset:0;
       z-index:-3;
       background: url("photo.jpg") center / cover no-repeat;
-      filter: blur(22px) brightness(0.35);
+      filter: blur(12px) brightness(0.45);
       transform: scale(1.12);
+    }
+
+    /* Cela slika vidljiva (contain) */
+    body::before{
+      content:"";
+      position:fixed;
+      inset:0;
+      background: url("photo.jpg") center / contain no-repeat;
+      filter: blur(3px) brightness(0.78);
+      transform: scale(1.08);
+      z-index:-2;
     }
 
     body::after{
       content:"";
       position:fixed;
       inset:0;
-      background: rgba(0,0,0,0.35);
+      background: rgba(0,0,0,0.30);
       z-index:-1;
     }
 
@@ -71,9 +70,9 @@
       font-weight: 900;
       text-shadow: 0 2px 18px rgba(0,0,0,.35);
       display:flex;
-      gap:10px;
       justify-content:center;
       align-items:center;
+      gap:10px;
       flex-wrap:wrap;
     }
 
@@ -85,46 +84,52 @@
       text-shadow: 0 2px 18px rgba(0,0,0,.35);
     }
 
-    /* ✅ Lep centralni “🩵” kao SVG (uvek isto izgleda) */
+    /* Veliko srce */
     .center{
-      margin: 18px auto 8px;
+      margin: 22px auto 10px;
       display:flex;
       justify-content:center;
       align-items:center;
-      gap:14px;
       user-select:none;
     }
 
     .big-heart{
-      width:120px;
-      height:120px;
-      filter: drop-shadow(0 0 18px rgba(174,239,255,.85));
+      width:130px;
+      height:130px;
       cursor:pointer;
-      transition: transform .12s ease;
-    }
-    .big-heart:hover{ transform: translateY(-2px) scale(1.01); }
-
-    .ds-text{
-      font-weight: 900;
-      font-size: 20px;
-      fill:#003344;
-      letter-spacing:.5px;
+      filter: drop-shadow(0 0 22px rgba(174,239,255,.85));
+      transition: transform 0.20s ease;
     }
 
-    .small-heart{
-      width:34px;
-      height:34px;
-      filter: drop-shadow(0 0 10px rgba(174,239,255,.9));
+    .big-heart:hover{
+      transform: scale(1.08);
     }
 
+    /* Dugmad: koristimo grid sa 2 kolone:
+       levo je DA (stabilno), desno je "zona" gde Ne sme da beži.
+       Tako Ne nikad ne ide preko DA. */
     .row{
-      display:flex;
+      margin-top: 20px;
+      display:grid;
+      grid-template-columns: 1fr 1fr;
       gap:12px;
+      align-items:center;
+    }
+
+    .yes-wrap{
+      display:flex;
       justify-content:center;
-      flex-wrap:wrap;
-      margin-top: 18px;
-      position: relative;
-      min-height: 56px; /* da "Ne" može da beži bez pomeranja layouta */
+      align-items:center;
+    }
+
+    .no-zone{
+      position:relative;
+      height:56px; /* visina zone */
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      overflow:hidden; /* Ne ne može van desne zone */
+      border-radius:16px;
     }
 
     button{
@@ -134,14 +139,20 @@
       font-size: 17px;
       font-weight: 900;
       cursor: pointer;
-      background: linear-gradient(135deg, var(--light), var(--light2));
-      color: #002233;
+      min-width: 160px;
       box-shadow: 0 12px 25px rgba(0,0,0,0.35);
       transition: transform 0.12s ease;
-      min-width: 160px;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
 
     button:hover{ transform: translateY(-2px); }
+
+    .yes-btn{
+      background: linear-gradient(135deg, var(--light), var(--light2));
+      color: #002233;
+    }
 
     .no-btn{
       background: rgba(255,255,255,0.10);
@@ -149,9 +160,14 @@
       border: 1px solid rgba(255,255,255,0.25);
       backdrop-filter: blur(8px);
       box-shadow: 0 12px 25px rgba(0,0,0,0.25);
-      position: relative; /* start normal */
+      position:absolute; /* beži samo u okviru desne zone */
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      will-change: left, top;
     }
 
+    /* Secret i final poruke */
     .secret, .final{
       display:none;
       margin-top: 16px;
@@ -162,6 +178,14 @@
       font-size: 15px;
       color: #e6f7ff;
     }
+
+    /* Malo bolje za mobilni: ako je ekran uzak, stavi jedno ispod drugog
+       i dalje: Ne ostaje ispod (ne preklapa DA) */
+    @media (max-width: 520px){
+      .row{ grid-template-columns: 1fr; }
+      .no-zone{ margin: 0 auto; width: 100%; max-width: 320px; }
+      .yes-wrap{ width:100%; }
+    }
   </style>
 </head>
 
@@ -169,35 +193,27 @@
   <div class="bg-fill"></div>
 
   <div class="card">
-    <h1>
-      Pozivnica za moju najlepšu Sašicu
-      <svg class="small-heart" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 21s-7.2-4.6-9.7-8.7C.5 9 .9 5.8 3.4 4.1 5.5 2.7 8.2 3.1 10 5c1.8-1.9 4.5-2.3 6.6-.9 2.5 1.7 2.9 4.9 1.1 8.2C19.2 16.4 12 21 12 21z"
-              fill="#aeefff"/>
-      </svg>
-    </h1>
-
+    <h1>Pozivnica za moju najlepšu Sašicu 🩵</h1>
     <h2>Hoćeš li biti moja Valentine?</h2>
 
     <div class="center">
-      <!-- Klik na srce pokazuje secret poruku -->
-      <svg class="big-heart" viewBox="0 0 24 24" onclick="toggleSecret()" role="button" aria-label="Secret poruka">
-        <path d="M12 21s-7.2-4.6-9.7-8.7C.5 9 .9 5.8 3.4 4.1 5.5 2.7 8.2 3.1 10 5c1.8-1.9 4.5-2.3 6.6-.9 2.5 1.7 2.9 4.9 1.1 8.2C19.2 16.4 12 21 12 21z"
-              fill="#aeefff"/>
-        <text x="12" y="13.2" text-anchor="middle" class="ds-text">D + S</text>
-      </svg>
-
-      <svg class="small-heart" viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M12 21s-7.2-4.6-9.7-8.7C.5 9 .9 5.8 3.4 4.1 5.5 2.7 8.2 3.1 10 5c1.8-1.9 4.5-2.3 6.6-.9 2.5 1.7 2.9 4.9 1.1 8.2C19.2 16.4 12 21 12 21z"
-              fill="#aeefff"/>
+      <svg class="big-heart" viewBox="0 0 24 24" onclick="toggleSecret()" aria-label="Secret poruka">
+        <path
+          d="M12 21s-7.2-4.6-9.7-8.7C.5 9 .9 5.8 3.4 4.1 5.5 2.7 8.2 3.1 10 5c1.8-1.9 4.5-2.3 6.6-.9 2.5 1.7 2.9 4.9 1.1 8.2C19.2 16.4 12 21 12 21z"
+          fill="#aeefff"
+        />
       </svg>
     </div>
 
-    <!-- ✅ Sklonjena “Imam mali plan…” poruka (nema je više) -->
+    <div class="row">
+      <div class="yes-wrap">
+        <button class="yes-btn" onclick="acceptValentine()">DA 🩵</button>
+      </div>
 
-    <div class="row" id="row">
-      <button onclick="acceptValentine()">DA 🩵</button>
-      <button class="no-btn" id="noBtn" type="button">Ne 😅</button>
+      <!-- Desna zona za Ne: ne može preko DA -->
+      <div class="no-zone" id="noZone" aria-label="Zona za Ne dugme">
+        <button class="no-btn" id="noBtn" type="button">Ne 😅</button>
+      </div>
     </div>
 
     <div class="secret" id="secretBox">
@@ -208,42 +224,79 @@
   </div>
 
   <script>
-    // ✅ “Ne” dugme beži (unutar .row)
-    const noBtn = document.getElementById("noBtn");
-    const row   = document.getElementById("row");
-    let dodges = 0;
+    const noBtn  = document.getElementById("noBtn");
+    const noZone = document.getElementById("noZone");
 
-    function dodge(){
-      dodges++;
+    // Brže bežanje + "cooldown" da ne možeš spam klik
+    let lastMove = 0;
+    const MOVE_COOLDOWN_MS = 120; // manji = brže beži
+    const EDGE_PADDING = 6;
 
-      const rowRect = row.getBoundingClientRect();
-      const btnRect = noBtn.getBoundingClientRect();
+    // pomeri Ne na random poziciju unutar zone, ali dovoljno daleko od kursora
+    function moveNo(avoidX, avoidY){
+      const now = Date.now();
+      if (now - lastMove < MOVE_COOLDOWN_MS) return;
+      lastMove = now;
 
-      const padding = 6;
-      const maxX = Math.max(padding, rowRect.width - btnRect.width - padding);
-      const maxY = Math.max(padding, rowRect.height - btnRect.height - padding);
+      const zone = noZone.getBoundingClientRect();
+      const btn  = noBtn.getBoundingClientRect();
 
-      const x = Math.floor(Math.random() * maxX);
-      const y = Math.floor(Math.random() * maxY);
+      const maxX = Math.max(EDGE_PADDING, zone.width  - btn.width  - EDGE_PADDING);
+      const maxY = Math.max(EDGE_PADDING, zone.height - btn.height - EDGE_PADDING);
 
-      noBtn.style.position = "absolute";
+      // U zoninim koordinatama
+      const ax = (avoidX != null) ? (avoidX - zone.left) : zone.width/2;
+      const ay = (avoidY != null) ? (avoidY - zone.top)  : zone.height/2;
+
+      // Pokušaj par puta da nađe poziciju koja nije blizu pokazivača
+      let x = 0, y = 0;
+      let ok = false;
+      for (let i=0; i<10; i++){
+        x = Math.floor(Math.random() * maxX);
+        y = Math.floor(Math.random() * maxY);
+
+        const cx = x + btn.width/2;
+        const cy = y + btn.height/2;
+        const dist = Math.hypot(cx - ax, cy - ay);
+
+        // minimalna udaljenost od pokazivača (što veće = teže kliknuti)
+        if (dist > 90) { ok = true; break; }
+      }
+      // ako nije našao "daleko", uzmi šta ima
       noBtn.style.left = x + "px";
       noBtn.style.top  = y + "px";
-
-      // posle par bežanja, pretvori ga u “OK DA”
-      if (dodges >= 6) {
-        noBtn.textContent = "Ok, DA 😄";
-        noBtn.classList.remove("no-btn");
-        noBtn.style.background = "linear-gradient(135deg, #aeefff, #6fd4ff)";
-        noBtn.style.color = "#002233";
-        noBtn.style.border = "none";
-        noBtn.onclick = acceptValentine;
-        noBtn.onmouseenter = null;
-      }
+      noBtn.style.transform = "translate(0,0)";
     }
 
-    noBtn.addEventListener("mouseenter", dodge);
-    noBtn.addEventListener("click", dodge);
+    // Beži čim uđeš u zonu i dok se mičeš
+    noZone.addEventListener("pointerenter", (e) => moveNo(e.clientX, e.clientY));
+    noZone.addEventListener("pointermove",  (e) => moveNo(e.clientX, e.clientY));
+
+    // Ako pokušaš klik — beži momentalno (i spreči klik)
+    noBtn.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      moveNo(e.clientX, e.clientY);
+    });
+
+    // Za svaki slučaj: i na click beži
+    noBtn.addEventListener("click", (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      moveNo(e.clientX, e.clientY);
+    });
+
+    // Start: centriraj Ne na sredinu zone
+    window.addEventListener("load", () => {
+      // postavi na sredinu (posle prvog layouta)
+      const zone = noZone.getBoundingClientRect();
+      const btn  = noBtn.getBoundingClientRect();
+      const x = Math.max(EDGE_PADDING, (zone.width - btn.width) / 2);
+      const y = Math.max(EDGE_PADDING, (zone.height - btn.height) / 2);
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
+      noBtn.style.transform = "translate(0,0)";
+    });
 
     function toggleSecret(){
       const box = document.getElementById("secretBox");
@@ -253,7 +306,8 @@
     function acceptValentine(){
       const final = document.getElementById("finalBox");
       final.style.display = "block";
-      final.innerHTML = "Jeeee! Zvanično: ti si moja Valentine 🩵<br>Vidimo se uskoro… Dušan 💌";
+      final.innerHTML =
+        "Jeeee! Zvanično: ti si moja Valentine 🩵<br>Vidimo se uskoro… Dušan 💌";
     }
   </script>
 </body>
