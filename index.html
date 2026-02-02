@@ -19,42 +19,37 @@ body{
   justify-content:center;
   align-items:center;
   color:#fff;
-  overflow:hidden;
   background:#000;
+
+  /* ✅ bitno: da može da se skroluje kad se pojavi slika */
+  overflow:auto;
+  padding: 18px 0; /* da kartica ne bude zalepljena za ivice na mobilu */
 }
 
-/* ✅ Fill sloj (popunjava ekran, može da seče, ali je blur) */
-.bg-fill{
-  position:fixed;
-  inset:0;
-  z-index:-3;
-  background:url("photo.jpg") center/cover no-repeat;
-  filter: blur(18px) brightness(.55);
-  transform: scale(1.08);
-}
-
-/* ✅ Glavni sloj: cela slika (bez sečenja) */
-body::before{
-  content:"";
+/* ✅ JASNA POZADINA (bez blur) */
+.bg{
   position:fixed;
   inset:0;
   z-index:-2;
-  background:url("photo.jpg") center/contain no-repeat;
-  filter: brightness(.95);
+  background:url("photo.jpg") center/cover no-repeat;
 }
 
-/* Overlay da tekst bude čitljiv */
+/* samo blagi overlay radi čitljivosti */
 body::after{
   content:"";
   position:fixed;
   inset:0;
-  background:rgba(0,0,0,0.35);
+  background:rgba(0,0,0,0.28);
   z-index:-1;
 }
 
-/* Glass kartica */
+/* Glass kartica + skrol unutra ako je potrebno */
 .card{
   width:min(720px,94vw);
+  max-height: calc(100vh - 40px); /* da stane na ekran */
+  overflow:auto;                  /* ✅ ako je sadržaj veći, skrol u kartici */
+  -webkit-overflow-scrolling: touch;
+
   padding:28px 22px 26px;
   border-radius:26px;
   background:rgba(255,255,255,0.14);
@@ -66,7 +61,7 @@ body::after{
 
 h1{
   margin:0;
-  font-size:clamp(22px,3.8vw,40px);
+  font-size:clamp(22px,3.6vw,36px);
   font-weight:900;
 }
 
@@ -93,7 +88,7 @@ h2{
 }
 .big-heart:hover{ transform:scale(1.08); }
 
-/* Dugmad: DA levo, NE desno u velikoj zoni */
+/* Dugmad: DA levo, NE desno (NE samo u svojoj zoni) */
 .row{
   margin-top:22px;
   display:grid;
@@ -123,12 +118,12 @@ button{
   color:#002233;
 }
 
-/* ✅ VEĆA ZONA za NE (da ima gde da beži) */
+/* ✅ ogromna zona za NE da ima gde da beži */
 .no-zone{
   position:relative;
-  height:140px;         /* veće = bolje beži */
+  height: 220px;     /* veliko */
   border-radius:18px;
-  overflow:hidden;      /* nikad ne prelazi preko DA */
+  overflow:hidden;   /* nikad preko DA */
 }
 
 /* NE dugme */
@@ -141,7 +136,9 @@ button{
   color:#fff;
   border:1px solid rgba(255,255,255,.25);
   backdrop-filter:blur(6px);
-  pointer-events:none;  /* ne može da se klikne */
+
+  /* ne može da se klikne */
+  pointer-events:none;
 }
 
 /* Poruke */
@@ -156,11 +153,13 @@ button{
   color:#e6f7ff;
 }
 
-/* Slika koja se pojavi kad klikne DA */
+/* ✅ Slika posle DA — uvek staje u karticu */
 #lovePhoto{
   display:none;
-  margin:18px auto 0;
-  width:min(520px,92%);
+  margin:18px auto 10px;
+  width: min(520px, 95%);
+  max-width: 100%;
+  height: auto;           /* da ne seče */
   border-radius:18px;
   border:2px solid rgba(255,255,255,0.25);
   box-shadow:0 15px 40px rgba(0,0,0,0.45);
@@ -176,15 +175,15 @@ button{
 
 @media(max-width:540px){
   .row{ grid-template-columns:1fr; }
-  .no-zone{ height:170px; }
+  .no-zone{ height: 260px; } /* još veće na telefonu */
 }
 </style>
 </head>
 
 <body>
-<div class="bg-fill"></div>
+<div class="bg"></div>
 
-<div class="card">
+<div class="card" id="card">
   <h1>Pozivnica za moju najlepšu Sašicu 🩵</h1>
   <h2>Hoćeš li biti moja Valentine?</h2>
 
@@ -217,98 +216,74 @@ button{
   <div class="final" id="finalBox"></div>
 
   <img id="lovePhoto" src="ds.jpg" alt="D + S">
-  <div id="photoError">Ne mogu da učitam <b>ds.jpg</b> — proveri da li postoji u repo root-u i da li se zove tačno <b>ds.jpg</b>.</div>
+  <div id="photoError">Ne mogu da učitam <b>ds.jpg</b>. Proveri da li postoji u repo root-u i da li se zove tačno <b>ds.jpg</b>.</div>
 </div>
 
 <script>
 const noBtn  = document.getElementById("noBtn");
 const noZone = document.getElementById("noZone");
+const card   = document.getElementById("card");
 
-let pos = { x: 0.5, y: 0.5 }; // normalizovano (0..1)
-let target = { x: 0.5, y: 0.5 };
-let raf = null;
-
-/* Postavi dugme po normalizovanoj poziciji */
-function applyPos(nx, ny){
+/* ✅ Teleport: uvek daleko od miša */
+function teleportFarFromMouse(clientX, clientY){
   const zone = noZone.getBoundingClientRect();
   const btn  = noBtn.getBoundingClientRect();
 
   const maxX = Math.max(0, zone.width  - btn.width);
   const maxY = Math.max(0, zone.height - btn.height);
 
-  const x = nx * maxX;
-  const y = ny * maxY;
+  // miš u koordinatama zone
+  const mx = clamp(clientX - zone.left, 0, zone.width);
+  const my = clamp(clientY - zone.top,  0, zone.height);
 
-  noBtn.style.left = x + "px";
-  noBtn.style.top  = y + "px";
+  // tražimo poziciju čiji je centar daleko od miša
+  const minDist = Math.min(zone.width, zone.height) * 0.45; // daleko
+  let best = {x: Math.random()*maxX, y: Math.random()*maxY};
+  let bestD = -1;
+
+  for(let i=0;i<25;i++){
+    const x = Math.random()*maxX;
+    const y = Math.random()*maxY;
+
+    const cx = x + btn.width/2;
+    const cy = y + btn.height/2;
+
+    const d = Math.hypot(cx - mx, cy - my);
+
+    // ako je dovoljno daleko, uzmi odmah
+    if(d >= minDist){
+      noBtn.style.left = x + "px";
+      noBtn.style.top  = y + "px";
+      noBtn.style.transform = "none";
+      return;
+    }
+
+    // zapamti najbolju ako nijedna ne prođe prag
+    if(d > bestD){
+      bestD = d; best = {x,y};
+    }
+  }
+
+  // fallback: najdalja koju smo našli
+  noBtn.style.left = best.x + "px";
+  noBtn.style.top  = best.y + "px";
   noBtn.style.transform = "none";
 }
 
-/* “Beži od kursora”: target se pomera U SUPROTNOM smeru od kursora */
-function repel(clientX, clientY){
-  const zone = noZone.getBoundingClientRect();
-  const btn  = noBtn.getBoundingClientRect();
+function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
 
-  // kursorska pozicija unutar zone (0..1)
-  const mx = (clientX - zone.left) / zone.width;
-  const my = (clientY - zone.top) / zone.height;
+/* Beži čim uđeš u zonu i dok se mičeš */
+noZone.addEventListener("mouseenter", (e) => teleportFarFromMouse(e.clientX, e.clientY));
+noZone.addEventListener("mousemove",  (e) => teleportFarFromMouse(e.clientX, e.clientY));
 
-  // trenutni centar dugmeta (0..1)
-  const cx = pos.x;
-  const cy = pos.y;
-
-  // vektor od miša ka dugmetu
-  const dx = cx - mx;
-  const dy = cy - my;
-
-  // ako je miš baš blizu, pojačaj bežanje
-  const dist = Math.hypot(dx, dy);
-  const strength = dist < 0.20 ? 0.35 : 0.22; // veće = brže/više beži
-
-  // normalizuj
-  const ndx = dx / (dist || 1);
-  const ndy = dy / (dist || 1);
-
-  // nova meta pozicija (gura se od miša)
-  target.x = clamp(cx + ndx * strength, 0.02, 0.98);
-  target.y = clamp(cy + ndy * strength, 0.06, 0.94);
-
-  // dodaj malo random “panic” kad je baš blizu
-  if (dist < 0.16){
-    target.x = clamp(target.x + (Math.random()-0.5)*0.35, 0.02, 0.98);
-    target.y = clamp(target.y + (Math.random()-0.5)*0.35, 0.06, 0.94);
-  }
-
-  startAnim();
-}
-
-function clamp(v, a, b){ return Math.max(a, Math.min(b, v)); }
-
-function startAnim(){
-  if (raf) return;
-  const step = () => {
-    // brzo prati target (easing)
-    pos.x += (target.x - pos.x) * 0.45;
-    pos.y += (target.y - pos.y) * 0.45;
-
-    applyPos(pos.x, pos.y);
-
-    // stani kad je dovoljno blizu
-    if (Math.abs(target.x - pos.x) < 0.002 && Math.abs(target.y - pos.y) < 0.002){
-      raf = null;
-      return;
-    }
-    raf = requestAnimationFrame(step);
-  };
-  raf = requestAnimationFrame(step);
-}
-
-/* pokreće bežanje čim si u zoni i dok se pomeraš */
-noZone.addEventListener("mouseenter", (e) => repel(e.clientX, e.clientY));
-noZone.addEventListener("mousemove",  (e) => repel(e.clientX, e.clientY));
-
-/* init centar */
-window.addEventListener("load", () => applyPos(pos.x, pos.y));
+/* start pozicija */
+window.addEventListener("load", () => {
+  const z = noZone.getBoundingClientRect();
+  const b = noBtn.getBoundingClientRect();
+  noBtn.style.left = Math.max(0,(z.width - b.width)/2) + "px";
+  noBtn.style.top  = Math.max(0,(z.height - b.height)/2) + "px";
+  noBtn.style.transform = "none";
+});
 
 function toggleSecret(){
   const box = document.getElementById("secretBox");
@@ -323,16 +298,19 @@ function acceptValentine(){
   final.style.display = "block";
   final.innerHTML = "Moja Sašica 🩵<br>Jedva čekam naš dan.";
 
-  // prikaži sliku; ako failuje, prikaži error
   err.style.display = "none";
   photo.style.display = "block";
+
+  // cache-buster da uvek učita najnoviju
   photo.onload = () => { err.style.display = "none"; };
   photo.onerror = () => { photo.style.display = "none"; err.style.display = "block"; };
-
-  // nateraj refresh učitavanja (cache buster)
   photo.src = "ds.jpg?v=" + Date.now();
+
+  // ✅ skroluj karticu do slike (da se vidi cela)
+  setTimeout(() => {
+    card.scrollTo({ top: card.scrollHeight, behavior: "smooth" });
+  }, 80);
 }
 </script>
-
 </body>
 </html>
